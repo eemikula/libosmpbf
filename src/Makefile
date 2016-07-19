@@ -15,7 +15,7 @@ protobuf/osm.pb.h:
 	@$(MAKE) -C protobuf
 
 libosmpbf.o: libosmpbf.cpp ../include/libosmpbf.h protobuf/osm.pb.h
-	g++ -fPIC -c libosmpbf.cpp `pkg-config --cflags protobuf zlib` $(CFLAGS) -I../include
+	g++ -fPIC -c libosmpbf.cpp `pkg-config --cflags protobuf zlib` $(CFLAGS) -I../include -Wall
 
 ../lib/libosmpbf.so: libosmpbf.o protobuf/osm.pb.o
 	mkdir -p ../lib

@@ -2,6 +2,7 @@ TARGETS=lib/libosmpbf.so lib/libosmpbf.a
 CFLAGS=
 
 all: $(TARGETS)
+	@$(MAKE) -C src
 
 clean:
 	@$(MAKE) clean -C src

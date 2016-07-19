@@ -50,12 +50,23 @@ Way::Way(const BlockWay &w){
 
 }
 
+Relation::Member::Member(uint64_t id, MemberType type, const std::string &r){
+	this->id = id;
+	this->type = type;
+	this->role = r;
+}
+
 Relation::Relation(const BlockRelation &r){
 	id = r.id();
 
-	for (int i = 0; i < r.keys(); i++){
+	for (uint32_t i = 0; i < r.keys(); i++){
 		BlockTag tag = r.keys(i);
 		tags[tag.first] = tag.second;
+	}
+
+	for (uint32_t i = 0; i < r.members(); i++){
+		BlockRelation::Member m = r.members(i);
+		members.push_back(Member(m.id, m.type, m.role));
 	}
 
 }
@@ -163,7 +174,7 @@ unsigned int BlockRelation::keys() const {
 	return relation.keys_size();
 }
 
-BlockRelation::Member::Member(uint64_t id, BlockRelation::MemberType type, const std::string &r) : role(r){
+BlockRelation::Member::Member(uint64_t id, MemberType type, const std::string &r) : role(r){
 	this->id = id;
 	this->type = type;
 }

@@ -141,20 +141,29 @@ private:
 	const OSMPBF::PrimitiveBlock &block;
 };
 
+enum MemberType {
+	Member_Node = 0,
+	Member_Way = 1,
+	Member_Relation = 2
+};
+
 struct Relation {
+
+	struct Member {
+		Member(uint64_t id, MemberType type, const std::string &r);
+		uint64_t id;
+		MemberType type;
+		std::string role;
+	};
+
 	Relation(const BlockRelation &r);
 	uint64_t id;
+	std::list<Member> members;
 	std::map<std::string, std::string> tags;
 };
 
 class BlockRelation {
 public:
-
-	enum MemberType {
-		Member_Node = 0,
-		Member_Way = 1,
-		Member_Relation = 2
-	};
 
 	struct Member {
 		Member(uint64_t id, MemberType type, const std::string &r);

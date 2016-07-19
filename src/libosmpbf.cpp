@@ -26,8 +26,8 @@ Node::Node(){
 Node::Node(const BlockNode &n) : coords(n.coords()) {
 	id = n.id();
 
-	for (uint32_t i = 0; i < n.keys(); i++){
-		BlockTag tag = n.keys(i);
+	for (int i = 0; i < n.tags(); i++){
+		BlockTag tag = n.tags(i);
 		tags[tag.first] = tag.second;
 	}
 }
@@ -39,12 +39,12 @@ Way::Way(){
 Way::Way(const BlockWay &w){
 	id = w.id();
 
-	for (uint32_t i = 0; i < w.nodes(); i++){
+	for (int i = 0; i < w.nodes(); i++){
 		nodeIds.push_back(w.nodes(i));
 	}
 
-	for (uint32_t i = 0; i < w.keys(); i++){
-		BlockTag tag = w.keys(i);
+	for (int i = 0; i < w.tags(); i++){
+		BlockTag tag = w.tags(i);
 		tags[tag.first] = tag.second;
 	}
 
@@ -59,12 +59,12 @@ Relation::Member::Member(uint64_t id, MemberType type, const std::string &r){
 Relation::Relation(const BlockRelation &r){
 	id = r.id();
 
-	for (uint32_t i = 0; i < r.keys(); i++){
-		BlockTag tag = r.keys(i);
+	for (int i = 0; i < r.tags(); i++){
+		BlockTag tag = r.tags(i);
 		tags[tag.first] = tag.second;
 	}
 
-	for (uint32_t i = 0; i < r.members(); i++){
+	for (int i = 0; i < r.members(); i++){
 		BlockRelation::Member m = r.members(i);
 		members.push_back(Member(m.id, m.type, m.role));
 	}
@@ -77,22 +77,22 @@ BlockWay::BlockWay(const OSMPBF::Way &w, const OSMPBF::PrimitiveBlock &b) : way(
 
 uint64_t BlockWay::id() const {return way.id();}
 
-uint32_t BlockWay::keys() const {return way.keys_size();}
+int BlockWay::tags() const {return way.keys_size();}
 
-BlockTag BlockWay::keys(uint32_t i) const {
+BlockTag BlockWay::tags(int i) const {
 	uint32_t key = way.keys(i);
 	uint32_t val = way.vals(i);
 	return BlockTag(block.stringtable().s(key), block.stringtable().s(val));
 }
 
-uint32_t BlockWay::nodes() const {
+int BlockWay::nodes() const {
 	return way.refs_size();
 
 }
 
-uint64_t BlockWay::nodes(uint32_t i) const {
+uint64_t BlockWay::nodes(int i) const {
 	int64_t node = 0;
-	for (uint32_t n = 0; n <= i; n++)
+	for (int n = 0; n <= i; n++)
 		node += way.refs(n);
 	return node;
 }
@@ -122,7 +122,7 @@ uint64_t BlockNode::id() const {
 		return n.id();
 	}
 }
-unsigned int BlockNode::keys() const {
+int BlockNode::tags() const {
 	if (this->dense){
 		const OSMPBF::DenseNodes &nodes = this->block.primitivegroup(this->group).dense();
 		unsigned int count = 0;
@@ -133,7 +133,7 @@ unsigned int BlockNode::keys() const {
 		return n.keys_size();
 	}
 }
-BlockTag BlockNode::keys(uint64_t x) const {
+BlockTag BlockNode::tags(int x) const {
 	if (dense){
 		const OSMPBF::DenseNodes &nodes = this->block.primitivegroup(this->group).dense();
 		unsigned int key = nodes.keys_vals(this->i+x*2);
@@ -170,7 +170,7 @@ uint64_t BlockRelation::id() const {
 	return relation.id();
 }
 
-unsigned int BlockRelation::keys() const {
+int BlockRelation::tags() const {
 	return relation.keys_size();
 }
 
@@ -179,17 +179,17 @@ BlockRelation::Member::Member(uint64_t id, MemberType type, const std::string &r
 	this->type = type;
 }
 
-BlockTag BlockRelation::keys(uint32_t i) const {
+BlockTag BlockRelation::tags(int i) const {
 	uint32_t key = relation.keys(i);
 	uint32_t val = relation.vals(i);
 	return BlockTag(block.stringtable().s(key), block.stringtable().s(val));
 }
 
-uint32_t BlockRelation::members() const {
+int BlockRelation::members() const {
 	return relation.memids_size();
 }
 
-BlockRelation::Member BlockRelation::members(uint64_t i) const {
+BlockRelation::Member BlockRelation::members(int i) const {
 
 	uint64_t id = 0;
 	for (int n = 0; n <= i; n++)
@@ -221,7 +221,7 @@ PbfBlock::NodeIterator::NodeIterator(OSMPBF::PrimitiveBlock &b, bool end) : bloc
 
 bool PbfBlock::NodeIterator::hasData() const {
 	return this->group < block.primitivegroup_size()
-			&& (!this->dense && this->i < block.primitivegroup(this->group).nodes_size()
+			&& ((!this->dense && this->i < block.primitivegroup(this->group).nodes_size())
 				|| (
 					this->dense
 					&& block.primitivegroup(this->group).has_dense()
@@ -290,7 +290,6 @@ PbfBlock::NodeIterator &PbfBlock::NodeIterator::next(){
 
 const BlockNode PbfBlock::NodeIterator::operator -> () const {
 	if (this->dense){
-		const OSMPBF::DenseNodes &nodes = block.primitivegroup(group).dense();
 		return BlockNode(this->block, this->group, this->dense, this->i, this->idBase, this->node);
 	} else {
 		return BlockNode(this->block, this->group, this->i);
@@ -299,7 +298,6 @@ const BlockNode PbfBlock::NodeIterator::operator -> () const {
 
 const BlockNode PbfBlock::NodeIterator::operator * () const {
 	if (this->dense){
-		const OSMPBF::DenseNodes &nodes = block.primitivegroup(group).dense();
 		return BlockNode(this->block, this->group, this->dense, this->i, this->idBase, this->node);
 	} else {
 		return BlockNode(this->block, this->group, this->i);

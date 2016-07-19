@@ -102,15 +102,15 @@ public:
 	BlockNode(const OSMPBF::PrimitiveBlock &b, int group, int i);
 
 	uint64_t id() const;
-	unsigned int keys() const;
-	BlockTag keys(uint64_t x) const;
+	int tags() const;
+	BlockTag tags(int x) const;
 	Coords coords() const;
 
 	Node clone() const;
 
 private:
 	const OSMPBF::PrimitiveBlock &block;
-	unsigned int group, i, node;
+	int group, i, node;
 	uint64_t idBase;
 	bool dense;
 };
@@ -129,10 +129,10 @@ public:
 	BlockWay(const OSMPBF::Way &w, const OSMPBF::PrimitiveBlock &b);
 
 	uint64_t id() const;
-	uint32_t keys() const;
-	BlockTag keys(unsigned int i) const;
-	uint32_t nodes() const;
-	uint64_t nodes(uint32_t i) const;
+	int tags() const;
+	BlockTag tags(int i) const;
+	int nodes() const;
+	uint64_t nodes(int i) const;
 
 	Way clone() const;
 
@@ -175,10 +175,10 @@ public:
 	BlockRelation(const OSMPBF::Relation &r, const OSMPBF::PrimitiveBlock &b);
 
 	uint64_t id() const;
-	uint32_t keys() const;
-	BlockTag keys(uint32_t i) const;
-	uint32_t members() const;
-	Member members(uint64_t i) const;
+	int tags() const;
+	BlockTag tags(int i) const;
+	int members() const;
+	Member members(int i) const;
 
 	Relation clone() const;
 
@@ -209,7 +209,8 @@ public:
 
 	private:
 		OSMPBF::PrimitiveBlock &block;
-		unsigned int group, i, idBase, node;
+		int group, i, node;
+		uint64_t idBase;
 		bool dense, end;
 	};
 

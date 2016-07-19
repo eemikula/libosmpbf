@@ -24,8 +24,8 @@ int main(int argc, char *argv[]){
 			const std::string *name = 0;
 			bool restaurant = false;
 
-			for (int key = 0; key < node.keys(); key++){
-				libpbf::BlockTag pair = node.keys(key);
+			for (int key = 0; key < node.tags(); key++){
+				libpbf::BlockTag pair = node.tags(key);
 
 				if (pair.first == "amenity" && pair.second == "restaurant")
 					restaurant = true;
@@ -44,8 +44,8 @@ int main(int argc, char *argv[]){
 			const std::string *name = 0;
 			bool restaurant = false;
 
-			for (int key = 0; key < way.keys(); key++){
-				libpbf::BlockTag pair = way.keys(key);
+			for (int key = 0; key < way.tags(); key++){
+				libpbf::BlockTag pair = way.tags(key);
 
 				if (pair.first == "amenity" && pair.second == "restaurant")
 					restaurant = true;

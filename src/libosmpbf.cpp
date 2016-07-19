@@ -26,7 +26,7 @@ Node::Node(){
 Node::Node(const BlockNode &n) : coords(n.coords()) {
 	id = n.id();
 
-	for (int i = 0; i < n.keys(); i++){
+	for (uint32_t i = 0; i < n.keys(); i++){
 		BlockTag tag = n.keys(i);
 		tags[tag.first] = tag.second;
 	}
@@ -39,11 +39,11 @@ Way::Way(){
 Way::Way(const BlockWay &w){
 	id = w.id();
 
-	for (int i = 0; i < w.nodes(); i++){
+	for (uint32_t i = 0; i < w.nodes(); i++){
 		nodeIds.push_back(w.nodes(i));
 	}
 
-	for (int i = 0; i < w.keys(); i++){
+	for (uint32_t i = 0; i < w.keys(); i++){
 		BlockTag tag = w.keys(i);
 		tags[tag.first] = tag.second;
 	}
@@ -80,8 +80,8 @@ uint64_t BlockWay::id() const {return way.id();}
 uint32_t BlockWay::keys() const {return way.keys_size();}
 
 BlockTag BlockWay::keys(uint32_t i) const {
-	unsigned int key = way.keys(i);
-	unsigned int val = way.vals(i);
+	uint32_t key = way.keys(i);
+	uint32_t val = way.vals(i);
 	return BlockTag(block.stringtable().s(key), block.stringtable().s(val));
 }
 
@@ -92,7 +92,7 @@ uint32_t BlockWay::nodes() const {
 
 uint64_t BlockWay::nodes(uint32_t i) const {
 	int64_t node = 0;
-	for (int n = 0; n <= i; n++)
+	for (uint32_t n = 0; n <= i; n++)
 		node += way.refs(n);
 	return node;
 }

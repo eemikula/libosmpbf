@@ -39,7 +39,7 @@ namespace OSMPBF {
 	class Way;
 }
 
-namespace libpbf {
+namespace libosmpbf {
 
 class PbfStream;
 class PbfBlock;

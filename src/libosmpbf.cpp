@@ -6,7 +6,7 @@
 
 #include "protobuf/osm.pb.h"
 #include "libosmpbf.h"
-using namespace libpbf;
+using namespace libosmpbf;
 
 Coords::Coords(){
 	this->lat = this->lon = 0;

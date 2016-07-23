@@ -9,23 +9,23 @@ int main(int argc, char *argv[]){
 		return 0;
 	}
 
-	libpbf::PbfStream pbf(argv[1]);
+	libosmpbf::PbfStream pbf(argv[1]);
 	if (!pbf){
 		std::cout << "Not Ok\n";
 		return 1;
 	}
 
-	libpbf::PbfBlock block;
+	libosmpbf::PbfBlock block;
 	while (pbf >> block){
 
-		for (libpbf::PbfBlock::NodeIterator i = block.nodesBegin(); i != block.nodesEnd(); i.next()){
+		for (libosmpbf::PbfBlock::NodeIterator i = block.nodesBegin(); i != block.nodesEnd(); i.next()){
 
-			const libpbf::BlockNode &node = *i;
+			const libosmpbf::BlockNode &node = *i;
 			const std::string *name = 0;
 			bool restaurant = false;
 
 			for (int key = 0; key < node.tags(); key++){
-				libpbf::BlockTag pair = node.tags(key);
+				libosmpbf::BlockTag pair = node.tags(key);
 
 				if (pair.first == "amenity" && pair.second == "restaurant")
 					restaurant = true;
@@ -38,14 +38,14 @@ int main(int argc, char *argv[]){
 
 		}
 
-		for (libpbf::PbfBlock::WayIterator i = block.waysBegin(); i != block.waysEnd(); i.next()){
+		for (libosmpbf::PbfBlock::WayIterator i = block.waysBegin(); i != block.waysEnd(); i.next()){
 
-			const libpbf::BlockWay &way = *i;
+			const libosmpbf::BlockWay &way = *i;
 			const std::string *name = 0;
 			bool restaurant = false;
 
 			for (int key = 0; key < way.tags(); key++){
-				libpbf::BlockTag pair = way.tags(key);
+				libosmpbf::BlockTag pair = way.tags(key);
 
 				if (pair.first == "amenity" && pair.second == "restaurant")
 					restaurant = true;

@@ -56,6 +56,10 @@ Relation::Member::Member(uint64_t id, MemberType type, const std::string &r){
 	this->role = r;
 }
 
+Relation::Relation(){
+	id = 0;
+}
+
 Relation::Relation(const BlockRelation &r){
 	id = r.id();
 
@@ -97,17 +101,19 @@ uint64_t BlockWay::nodes(int i) const {
 	return node;
 }
 
-BlockNode::BlockNode(const OSMPBF::PrimitiveBlock &b, int group, bool dense, int i, uint64_t idBase, uint64_t node) : block(b){
+BlockNode::BlockNode(const OSMPBF::PrimitiveBlock &b, int group, int i, uint64_t idBase, uint64_t node, int64_t lat, int64_t lon) : block(b){
+	this->dense = true;
 	this->group = group;
-	this->dense = dense;
 	this->i = i;
 	this->idBase = idBase;
 	this->node = node;
+	this->lat = lat;
+	this->lon = lon;
 }
 
 BlockNode::BlockNode(const OSMPBF::PrimitiveBlock &b, int group, int i) : block(b){
-	this->group = group;
 	this->dense = false;
+	this->group = group;
 	this->i = i;
 	this->idBase = 0;
 	this->node = 0;
@@ -149,13 +155,7 @@ BlockTag BlockNode::tags(int x) const {
 
 Coords BlockNode::coords() const {
 	if (dense){
-		const OSMPBF::DenseNodes &nodes = this->block.primitivegroup(this->group).dense();
-		int64_t lat = this->block.lat_offset(), lon = this->block.lon_offset();
-		for (int x = 0; x <= node; x++){
-			lat += nodes.lat(x);
-			lon += nodes.lon(x);
-		}
-		return Coords(lat,lon,this->block.granularity());
+		return Coords(this->lat,this->lon,this->block.granularity());
 	} else {
 		const OSMPBF::Node &n = block.primitivegroup(this->group).nodes(this->i);
 		return Coords(n.lat(),n.lon(),this->block.granularity());
@@ -215,6 +215,14 @@ PbfBlock::NodeIterator::NodeIterator(OSMPBF::PrimitiveBlock &b, bool end) : bloc
 	this->idBase = 0;
 	this->node = 0;
 
+	const OSMPBF::DenseNodes &nodes = block.primitivegroup(group).dense();
+	if (nodes.keys_vals_size() > 0){
+		int64_t lato = block.lat_offset();
+		int64_t lono = block.lon_offset();
+		this->lat = block.lat_offset() + nodes.lat(0);
+		this->lon = block.lon_offset() + nodes.lon(0);
+	}
+
 	if (!this->hasData())
 		this->next();
 }
@@ -259,10 +267,13 @@ PbfBlock::NodeIterator &PbfBlock::NodeIterator::next(){
 			}
 
 			if (this->i < nodes.keys_vals_size()-1){
-				this->idBase += nodes.id(node);
+				this->idBase += nodes.id(this->node);
 				this->node++;
 				// ensure i advances past the 0 delimiter
 				this->i++;
+
+				this->lat += nodes.lat(this->node);
+				this->lon += nodes.lon(this->node);
 
 			} else {
 				this->dense = false;
@@ -278,6 +289,13 @@ PbfBlock::NodeIterator &PbfBlock::NodeIterator::next(){
 				this->dense = true;
 				this->node = 0;
 				this->idBase = 0;
+
+				const OSMPBF::DenseNodes &nextNodes = block.primitivegroup(group).dense();
+				if (nextNodes.keys_vals_size() > 0){
+					this->lat = block.lat_offset() + nextNodes.lat(0);
+					this->lon = block.lon_offset() + nextNodes.lon(0);
+				}
+
 			} else {
 				this->end = true;
 			}
@@ -290,7 +308,7 @@ PbfBlock::NodeIterator &PbfBlock::NodeIterator::next(){
 
 const BlockNode PbfBlock::NodeIterator::operator -> () const {
 	if (this->dense){
-		return BlockNode(this->block, this->group, this->dense, this->i, this->idBase, this->node);
+		return BlockNode(this->block, this->group, this->i, this->idBase, this->node, this->lat, this->lon);
 	} else {
 		return BlockNode(this->block, this->group, this->i);
 	}
@@ -298,7 +316,7 @@ const BlockNode PbfBlock::NodeIterator::operator -> () const {
 
 const BlockNode PbfBlock::NodeIterator::operator * () const {
 	if (this->dense){
-		return BlockNode(this->block, this->group, this->dense, this->i, this->idBase, this->node);
+		return BlockNode(this->block, this->group, this->i, this->idBase, this->node, this->lat, this->lon);
 	} else {
 		return BlockNode(this->block, this->group, this->i);
 	}

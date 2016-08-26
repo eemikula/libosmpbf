@@ -98,7 +98,7 @@ struct Node {
 
 class BlockNode {
 public:
-	BlockNode(const OSMPBF::PrimitiveBlock &b, int group, bool dense, int i, uint64_t idBase, uint64_t node);
+	BlockNode(const OSMPBF::PrimitiveBlock &b, int group, int i, uint64_t idBase, uint64_t node, int64_t lat, int64_t lon);
 	BlockNode(const OSMPBF::PrimitiveBlock &b, int group, int i);
 
 	uint64_t id() const;
@@ -113,6 +113,7 @@ private:
 	int group, i, node;
 	uint64_t idBase;
 	bool dense;
+	int64_t lat, lon;
 };
 
 struct Way {
@@ -156,9 +157,12 @@ struct Relation {
 		std::string role;
 	};
 
+	typedef std::list<Member> MemberList;
+
+	Relation();
 	Relation(const BlockRelation &r);
 	uint64_t id;
-	std::list<Member> members;
+	MemberList members;
 	std::map<std::string, std::string> tags;
 };
 
@@ -212,6 +216,7 @@ public:
 		int group, i, node;
 		uint64_t idBase;
 		bool dense, end;
+		int64_t lat, lon;
 	};
 
 	class WayIterator {

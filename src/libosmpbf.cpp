@@ -217,8 +217,6 @@ PbfBlock::NodeIterator::NodeIterator(OSMPBF::PrimitiveBlock &b, bool end) : bloc
 
 	const OSMPBF::DenseNodes &nodes = block.primitivegroup(group).dense();
 	if (nodes.keys_vals_size() > 0){
-		int64_t lato = block.lat_offset();
-		int64_t lono = block.lon_offset();
 		this->lat = block.lat_offset() + nodes.lat(0);
 		this->lon = block.lon_offset() + nodes.lon(0);
 	}

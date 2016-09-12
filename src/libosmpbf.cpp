@@ -484,7 +484,7 @@ Relation BlockRelation::clone() const {
 	return Relation(*this);
 }
 
-PbfStream::PbfStream(const char *file) : std::fstream(file){
+PbfStream::PbfStream(const char *file, long startBlock) : std::fstream(file){
 
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -501,6 +501,14 @@ PbfStream::PbfStream(const char *file) : std::fstream(file){
 				std::cout << "\t" << headerBlock.required_features(i) << "\n";
 			}*/
 		}
+	}
+
+	// If a start block is specified, read blobs without compressing them
+	// to reach the specified point
+	if (startBlock > 0){
+		OSMPBF::Blob blob;
+		while (startBlock-- > 0 && *this)
+			readBlob(*this, blob);
 	}
 	
 }

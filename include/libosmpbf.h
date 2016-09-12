@@ -52,7 +52,7 @@ class Relation;
 
 class PbfStream : public std::fstream {
 public:
-	PbfStream(const char *file);
+	PbfStream(const char *file, long startBlock = 0);
 	~PbfStream();
 
 	std::fstream &operator >> (PbfBlock &block);

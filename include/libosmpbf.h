@@ -50,12 +50,24 @@ class Node;
 class Way;
 class Relation;
 
+class OPbfStream : public std::ostream {
+public:
+	OPbfStream(const char *file);
+	~OPbfStream();
+
+	std::ostream &operator << (PbfBlock &block);
+
+private:
+};
+
 class PbfStream : public std::fstream {
 public:
-	PbfStream(const char *file, long startBlock = 0);
+	PbfStream(const char *file);
 	~PbfStream();
 
 	std::fstream &operator >> (PbfBlock &block);
+
+	std::fstream &skipBlocks(unsigned long n);
 
 private:
 
@@ -164,6 +176,8 @@ struct Relation {
 	uint64_t id;
 	MemberList members;
 	std::map<std::string, std::string> tags;
+
+	const char *getTag(const char *name) const;
 };
 
 class BlockRelation {

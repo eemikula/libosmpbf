@@ -75,6 +75,15 @@ Relation::Relation(const BlockRelation &r){
 
 }
 
+// helper function to make it easier to get a tag value out of a const Relation
+const char *Relation::getTag(const char *name) const {
+	std::map<std::string, std::string>::const_iterator t = tags.find(name);
+	if (t != tags.end())
+		return t->second.c_str();
+	else
+		return NULL;
+}
+
 BlockWay::BlockWay(const OSMPBF::Way &w, const OSMPBF::PrimitiveBlock &b) : way(w), block(b){
 
 }
@@ -484,7 +493,7 @@ Relation BlockRelation::clone() const {
 	return Relation(*this);
 }
 
-PbfStream::PbfStream(const char *file, long startBlock) : std::fstream(file){
+PbfStream::PbfStream(const char *file) : std::fstream(file){
 
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -502,15 +511,17 @@ PbfStream::PbfStream(const char *file, long startBlock) : std::fstream(file){
 			}*/
 		}
 	}
-
-	// If a start block is specified, read blobs without compressing them
-	// to reach the specified point
-	if (startBlock > 0){
-		OSMPBF::Blob blob;
-		while (startBlock-- > 0 && *this)
-			readBlob(*this, blob);
-	}
 	
+}
+
+// Read blobs without decompressing them
+std::fstream &PbfStream::skipBlocks(unsigned long n){	
+	OSMPBF::Blob blob;
+	while (n > 0 && *this){
+		readBlob(*this, blob);
+		n--;
+	}
+	return *this;
 }
 
 PbfStream::~PbfStream(){
@@ -531,7 +542,8 @@ std::fstream &PbfStream::operator >> (PbfBlock &block){
 std::fstream &PbfStream::readDataStr(std::fstream &in, std::string &str, size_t size){
 	char *data = new char[size];
 	in.read(data, size);
-	str.assign(data, size);
+	if (in)
+		str.assign(data, size);
 	delete[] data;
 	return in;
 }
